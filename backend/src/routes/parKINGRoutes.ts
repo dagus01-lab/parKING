@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { getAllParkingSpots } from '../controllers/parKINGController';
+import { getAllParkingSpots } from '../controllers/parKINGControllerMock';
 
 const router = Router();
 
-router.get('/', getAllParkingSpots);
+router.post('/', getAllParkingSpots);
 
 export default router;
