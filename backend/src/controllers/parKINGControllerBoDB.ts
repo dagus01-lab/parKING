@@ -8,9 +8,9 @@ const default_distance = 5
 const default_limit = 20
 
 type SearchInfo = {
-    distance: DoubleRange,
-    longitude: DoubleRange,
-    latitude: DoubleRange,
+    distance: number,
+    longitude: number,
+    latitude: number,
     limit: number
 }
 type ApiResponse = {
@@ -23,17 +23,17 @@ type Parking = {
     posti_liberi: number,
     posti_occupati: number,
     posti_totali: number,
-    occupazione:  DoubleRange,
+    occupazione:  number,
     guid: string,
     coordinate: Coordinate
 }
 type Coordinate = {
-    lon: DoubleRange,
-    lat: DoubleRange
+    lon: number,
+    lat: number
 }
 
 export const build_api_url = (info: SearchInfo): string => {
-    return distance_filter.replace("FIELD", field)
+    return api_base_url+distance_filter.replace("FIELD", field)
             .replace("DISTANCE", String(info.distance))
             .replace("LIMIT", String(info.limit))
             .replace("LONGITUDE", String(info.longitude))
@@ -41,9 +41,9 @@ export const build_api_url = (info: SearchInfo): string => {
         
 }
 export const create_search_info_from_body = (body: string): SearchInfo => {
-    return JSON.parse(body)
+    return JSON.parse(body);
 }   
-export const call_api =  async (api_url: string) : Promise<string | ApiResponse> => {
+export const fetch_api =  async (api_url: string) : Promise<string | ApiResponse> => {
     try {
         // 👇️ const response: Response
         const response = await fetch(api_url, {
@@ -73,13 +73,16 @@ export const call_api =  async (api_url: string) : Promise<string | ApiResponse>
     }
 }
 export const getAllParkingSpots = (req: Request, res: Response): void => {
-  var info = create_search_info_from_body(req.body);
+  var info = req.body;
   var api_url = build_api_url(info);
-  var response = call_api(api_url);
-  if(typeof(response) == "string"){
-    res.status(502).send(response)
-   } else /*if(typeof(response) == "ApiResponse")*/{
-    res.status(200).json(response);
-  }
-  
+  console.log(api_url)
+  fetch_api(api_url).then(
+    (response)=>{
+        if(typeof(response) == "string"){
+            res.status(502).send(response)
+        } else /*if(typeof(response) == "ApiResponse")*/{
+            res.status(200).json(response);
+        }
+    }
+  );
 };

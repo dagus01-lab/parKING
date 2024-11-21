@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllParkingSpots } from '../controllers/parKINGControllerMock';
+import { getAllParkingSpots } from '../controllers/parKINGControllerBoDB';
 
 const router = Router();
 
