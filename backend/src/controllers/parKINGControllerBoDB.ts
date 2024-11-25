@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import {SearchInfo, ApiResponse} from '../types/search';
-import {build_api_url, ValidationError} from '../utils/unibodbinteraction';
+import {SearchInfo, ApiResponse, ValidationError} from '../types/search';
+import {build_api_url} from '../utils/unibodbinteraction';
 import fetch from 'node-fetch';
 
 export const create_search_info_from_body = (body: string): SearchInfo => {
