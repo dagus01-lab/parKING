@@ -4,7 +4,7 @@ import MapView, { Marker } from "react-native-maps";
 import { TextInput } from "react-native-gesture-handler";
 import zone from "../data/zone";
 import colors from "../data/colors";
-import apis from "../apis/apis";
+import APIs from "../apis/APIs";
 import { MapScreenRouteProps, LocationMarker } from "../types/navigationTypes";
 import { APIParameter } from "../types/apiTypes";
 
@@ -21,7 +21,7 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
       new APIParameter("boundary.circle.lon", zone.centerLongitude.toString()),
       new APIParameter("boundary.circle.radius", zone.radius.toString()),
     ];
-    apis["geocode/search"].fetch(apiParameters)?.then((res) => {
+    APIs["geocode/search"].fetch(apiParameters)?.then((res) => {
       res.json().then((json) => {
         const markers = json.features.map(
           (f: {

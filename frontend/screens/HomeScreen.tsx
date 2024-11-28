@@ -34,12 +34,15 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    // colors
+    backgroundColor: colors.baseColor,
+
     // size
     width: "100%",
     height: "100%",
 
     // children
-    alignContent: "center",
+    alignItems: "center",
     justifyContent: "center",
   },
   logo: {

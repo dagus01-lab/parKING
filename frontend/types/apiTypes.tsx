@@ -11,22 +11,22 @@ export class API {
   method: string;
   baseUrl: string;
   apiName: string;
-  apiKey: string;
+  apiKey?: string;
 
   constructor(
     method: string,
     baseUrl: string,
     apiName: string,
-    apiKey: string
+    apiKey?: string
   ) {
     this.method = method.toUpperCase();
     this.baseUrl = baseUrl;
     this.apiName = apiName;
-    this.apiKey = apiKey;
+    this.apiKey = apiKey ?? undefined;
   }
   fetch(params: APIParameter[]) {
     if (this.method === "GET") {
-      let formData = "api_key=" + this.apiKey;
+      let formData = this.apiKey !== undefined ? "api_key=" + this.apiKey : "";
       params.forEach((p) => {
         formData += "&";
         formData += p.name;
