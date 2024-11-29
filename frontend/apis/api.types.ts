@@ -31,7 +31,7 @@ export class API {
         formData += "&";
         formData += p.name;
         formData += "=";
-        formData += p.value;
+        formData += p.value.replace(/ /g, '%20');;
       });
       return fetch(this.baseUrl + "/" + this.apiName + "?" + formData, {
         method: this.method,

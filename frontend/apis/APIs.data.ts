@@ -1,4 +1,4 @@
-import { API } from "../types/apiTypes";
+import { API } from "./api.types";
 import tokens from "./tokens";
 
 const APIs = {
@@ -10,7 +10,7 @@ const APIs = {
   ),
   "parkingLots/search": new API(
     "GET",
-    "http:localhost:3000",
+    "http:192.168.1.2:3000",
     "api/parkingLots"
   )
 };

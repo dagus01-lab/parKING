@@ -4,17 +4,26 @@ import MapView, { Marker } from "react-native-maps";
 import { TextInput } from "react-native-gesture-handler";
 import zone from "../data/zone";
 import colors from "../data/colors";
-import APIs from "../apis/APIs";
-import { MapScreenRouteProps, LocationMarker } from "../types/navigationTypes";
-import { APIParameter } from "../types/apiTypes";
+import APIs from "../apis/APIs.data";
+import {
+  Coordinate,
+  Boundary,
+  PointOfInterest,
+  ParkingLot,
+} from "../model/model.parKING.types";
+import { APIParameter } from "../apis/api.types";
+import { MapScreenRouteProps } from "./navigation.types";
 
 export default function MapScreen(props: { route: MapScreenRouteProps }) {
   const [searchText, setSearchText] = useState<string>(
     props.route.params.searchText
   );
-  const [locationMarkers, setLocationMarkers] = useState<LocationMarker[]>([]);
+  const [locations, setLocations] = useState<PointOfInterest[]>([]);
 
-  const loadLocationMarkers = () => {
+  const [boundaryRadius, setBoundaryRadius] = useState<number>(1);
+  const [parkingLots, setParkingLots] = useState<PointOfInterest[]>([]);
+
+  const searchLocationMarkers = (searchText: string) => {
     const apiParameters = [
       new APIParameter("text", searchText),
       new APIParameter("boundary.circle.lat", zone.centerLatitude.toString()),
@@ -23,26 +32,59 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
     ];
     APIs["geocode/search"].fetch(apiParameters)?.then((res) => {
       res.json().then((json) => {
-        const markers = json.features.map(
+        const markers: PointOfInterest[] = json.features.map(
           (f: {
             geometry: { coordinates: number[] };
             properties: { name: string };
           }) => {
             return {
-              coordinates: {
+              name: f.properties.name,
+              coordinate: {
                 latitude: f.geometry.coordinates[1],
                 longitude: f.geometry.coordinates[0],
               },
-              title: f.properties.name,
             };
           }
         );
-        setLocationMarkers(markers);
+        setLocations(markers);
       });
     });
   };
 
-  useEffect(loadLocationMarkers, []);
+  const searchParkingMarkers = (location: PointOfInterest, radius: number) => {
+    const apiParameters = [
+      new APIParameter(
+        "boundary.center.latitude",
+        location.coordinate.latitude.toString()
+      ),
+      new APIParameter(
+        "boundary.center.longitude",
+        location.coordinate.longitude.toString()
+      ),
+      new APIParameter("boundary.radius", boundaryRadius.toString()),
+      new APIParameter("maxResults", "10"),
+    ];
+    APIs["parkingLots/search"].fetch(apiParameters)?.then((res) => {
+      res.json().then((json) => {
+        const markers = json.map((pl: ParkingLot) => {
+          return {
+            coordinate:pl.coordinate,
+            name: pl.name,
+          };
+        });
+        setParkingLots(markers);
+      });
+    });
+  };
+
+  const selectLocationMarker = (location: PointOfInterest) => {
+    setLocations([location]);
+    searchParkingMarkers(location, boundaryRadius);
+  };
+
+  useEffect(() => {
+    searchLocationMarkers(searchText);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -56,11 +98,23 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
           longitudeDelta: 1,
         }}
       >
-        {locationMarkers.map((lm, index) => (
+        {locations.map((lm, index) => (
           <Marker
-            title={lm.title}
-            coordinate={lm.coordinates}
-            key={"marker-" + index}
+            title={lm.name}
+            coordinate={lm.coordinate}
+            pinColor="red"
+            key={"location-marker" + index}
+            onSelect={() => {
+              selectLocationMarker(lm);
+            }}
+          />
+        ))}
+        {parkingLots.map((pl, index) => (
+          <Marker
+            title={pl.name}
+            coordinate={pl.coordinate}
+            pinColor="blue"
+            key={"parking-lot-marker" + index}
           />
         ))}
       </MapView>
@@ -73,7 +127,7 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
           setSearchText(newText);
         }}
         onSubmitEditing={(e) => {
-          loadLocationMarkers();
+          searchLocationMarkers(searchText);
         }}
       />
     </View>

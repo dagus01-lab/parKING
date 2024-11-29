@@ -1,9 +1,9 @@
-export type OpendataApiResponse = {
+export type OpenDataApiResponse = {
     total_count: number,
-    results: OpendataAPIParking[]
+    results: OpenDataAPIParking[]
 }
 
-export type OpendataAPIParking = {
+export type OpenDataAPIParking = {
     parcheggio: string,
     data: string,
     posti_liberi: number,
@@ -11,10 +11,10 @@ export type OpendataAPIParking = {
     posti_totali: number,
     occupazione: number,
     guid: string,
-    coordinate: OpendataAPICoordinate
+    coordinate: OpenDataAPICoordinate
 }
 
-export type OpendataAPICoordinate = {
+export type OpenDataAPICoordinate = {
     lon: number,
     lat: number
 }

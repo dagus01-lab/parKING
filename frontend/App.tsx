@@ -4,7 +4,7 @@ import React, { StrictMode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import HomeScreen from "./screens/HomeScreen";
 import MapScreen from "./screens/MapScreen";
-import { RootStackParamList } from "./types";
+import { RootStackParamList } from "./screens/navigation.types";
 
 const Stack = createStackNavigator<RootStackParamList>();
 

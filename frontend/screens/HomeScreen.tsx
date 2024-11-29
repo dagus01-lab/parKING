@@ -3,7 +3,7 @@ import { StyleSheet, View, Image } from "react-native";
 import colors from "../data/colors";
 import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
-import { DetailsScreenNavigationProp } from "../types/navigationTypes";
+import { DetailsScreenNavigationProp } from "./navigation.types";
 
 export default function HomeScreen() {
   const [text, setText] = useState("");
