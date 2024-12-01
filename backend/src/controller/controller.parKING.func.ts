@@ -1,30 +1,33 @@
 import { Request, Response } from "express";
-import { Coordinate, ParkingLot } from "../model/model.parKING.types";
+import { CircularBoundary, Coordinate, ParkingLot } from "../model/model.parKING.types";
 import {
   GetParkingLotsRequest,
   PutParkingLotsRequest,
 } from "../api/api.parkingLots.types";
 import { from } from "ix/iterable";
 import { filter, take } from "ix/iterable/operators";
+import { computeDistanceBetween } from 'spherical-geometry-js';
+import { LatLng } from "spherical-geometry-js";
+import { isPointWithinRadius } from "geolib";
 
 const DEFAULT_MAX_RESULTS = 10;
 
 const parkingLots = new Map<number, ParkingLot>([
   [
     1,
-    new ParkingLot(
-      1,
-      "Riva Reno",
-      { latitude: 44.504422, longitude: 11.346514 },
-      470,
-      470,
-      1732451330349
-    ),
+    {
+      id: 1,
+      name: "Riva Reno",
+      coordinate: { latitude: 44.504422, longitude: 11.346514 },
+      totalParkings: 470,
+      availableParkings: 470,
+      updateDateTime: 1732451330349
+    },
   ],
 ]);
 
-//This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
-function calcCrow(p1: Coordinate, p2: Coordinate) {
+//This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in m)
+function calcCrowMeters(p1: Coordinate, p2: Coordinate) {
   var R = 6371; // km
   var dLat = toRad(p2.latitude - p1.latitude);
   var dLon = toRad(p2.longitude - p1.longitude);
@@ -36,7 +39,16 @@ function calcCrow(p1: Coordinate, p2: Coordinate) {
     Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c;
-  return d;
+  return d * 1000;
+}
+
+function isInBoundary(point: Coordinate, boundary: CircularBoundary) {
+  var km = boundary.radius / 1000;
+  var kx = Math.cos(Math.PI * boundary.center.latitude / 180) * 111;
+  var dx = Math.abs(boundary.center.longitude - point.longitude) * kx;
+  var dy = Math.abs(boundary.center.latitude - point.latitude) * 111;
+  console.log("distance: " + Math.sqrt(dx * dx + dy * dy).toString())
+  return Math.sqrt(dx * dx + dy * dy) <= km;
 }
 
 // Converts numeric degrees to radians
@@ -61,7 +73,7 @@ export function getParkingLots(req: GetParkingLotsRequest, res: Response) {
   from(parkingLots.values())
     .pipe(
       filter((pl) => {
-        return calcCrow(boundary.center, pl.coordinate) < boundary.radius;
+        return isPointWithinRadius(pl.coordinate,boundary.center,boundary.radius)
       }),
       take(min(maxResults, DEFAULT_MAX_RESULTS))
     )

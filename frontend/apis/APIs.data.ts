@@ -1,5 +1,5 @@
 import { API } from "./api.types";
-import tokens from "./tokens";
+import tokens from "../data/tokens.const";
 
 const APIs = {
   "geocode/search": new API(

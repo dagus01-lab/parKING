@@ -17,7 +17,7 @@ export type ParkingLot = {
   coordinate: Coordinate;
 };
 
-export type Boundary={
-  center:Coordinate,
-  radius:number
+export type CircularBoundary = {
+  center: Coordinate,
+  radius: number
 }

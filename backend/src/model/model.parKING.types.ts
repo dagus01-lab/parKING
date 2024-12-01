@@ -3,27 +3,21 @@ export type Coordinate = {
   longitude: number;
 };
 
-export class ParkingLot {
+export type PointOfInterest = {
+  coordinate: Coordinate;
+  name: string;
+};
+
+export type ParkingLot = {
   id: number;
   name: string;
   updateDateTime: number;
   totalParkings: number;
   availableParkings: number;
   coordinate: Coordinate;
+};
 
-  constructor(
-    id: number,
-    name: string,
-    coordinate: Coordinate,
-    totalParkingLots: number,
-    availableParkingLots: number,
-    updateDateTime: number
-  ) {
-    this.id = id;
-    this.name = name;
-    this.coordinate = coordinate;
-    this.totalParkings = totalParkingLots;
-    this.availableParkings = availableParkingLots;
-    this.updateDateTime = updateDateTime;
-  }
+export type CircularBoundary = {
+  center: Coordinate,
+  radius: number
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Image } from "react-native";
-import colors from "../data/colors";
+import colors from "../data/colors.const";
 import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { DetailsScreenNavigationProp } from "./navigation.types";
@@ -19,7 +19,7 @@ export default function HomeScreen() {
       <TextInput
         style={styles.searchBar}
         placeholder="where do you wanna go?"
-        placeholderTextColor={colors.baseColor}
+        placeholderTextColor={colors.yellow}
         value={text}
         onChangeText={(newText) => {
           setText(newText);
@@ -35,7 +35,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     // colors
-    backgroundColor: colors.baseColor,
+    backgroundColor: colors.yellow,
 
     // size
     width: "100%",
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     // colors
-    backgroundColor: colors.contrastColor,
-    color: colors.baseColor,
+    backgroundColor: colors.red,
+    color: colors.yellow,
 
     // size
     width: "80%",
