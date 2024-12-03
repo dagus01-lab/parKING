@@ -1,0 +1,35 @@
+import cv2
+import socket
+import pickle
+import zlib  # For decompression
+
+server_ip = '0.0.0.0'  # Listen on all interfaces
+server_port = 12345
+
+# Set up the socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind((server_ip, server_port))
+
+print(f"Listening on {server_ip}:{server_port}")
+
+while True:
+    try:
+        # Receive the data
+        data, addr = server_socket.recvfrom(65536)
+        frame_encoded = pickle.loads(zlib.decompress(data))
+        frame = cv2.imdecode(frame_encoded, cv2.IMREAD_COLOR)
+
+        # Display the frame
+        cv2.imshow("Stream", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    except KeyboardInterrupt:
+        print("Streaming stopped.")
+        break
+    except Exception as e:
+        print(f"Error: {e}")
+        continue
+server_socket.close()
+cv2.destroyAllWindows()
