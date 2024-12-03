@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, View } from "react-native";
+import { Text, StyleSheet, View, ImageBackground } from "react-native";
 import MapView, {
   Marker,
   Circle,
@@ -53,6 +53,10 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
+        onPress={() => {
+          setLocationSelected(false);
+          setParkingLots([]);
+        }}
       >
         {locations.map((l, index) => (
           <Marker
@@ -78,8 +82,8 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
                 longitude: boundary.center.longitude,
               }}
               radius={boundary.radius}
-              strokeColor={colors.blue}
-              fillColor={colors.transparentBlue}
+              strokeColor={colors.red}
+              fillColor={colors.transparentRed}
             />
             {parkingLots.map((pl, index) => (
               <Marker
@@ -88,26 +92,35 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
                 description={`posti :${pl.availableParkings}`}
                 pinColor="blue"
                 key={"parking-lot-marker" + index}
-                calloutOffset={{ x: 100, y: 100 }}
               />
             ))}
           </>
         )}
       </MapView>
-      <TextInput
-        style={styles.searchLocationBar}
-        placeholder="where do you wanna go?"
-        placeholderTextColor={colors.yellow}
-        value={searchText}
-        onChangeText={(newText) => {
-          setSearchText(newText);
-        }}
-        onSubmitEditing={(e) => {
-          searchLocationMarkers(searchText).then((locations) => {
-            setLocations(locations);
-          });
-        }}
-      />
+      <ImageBackground
+        source={require("../assets/searchBarBackground.png")}
+        style={styles.searchBarContainer}
+        imageStyle={styles.searchBarBackgroundImg}
+      >
+        <TextInput
+          style={styles.searchBarTextInput}
+          placeholder="where do you wanna go?"
+          placeholderTextColor={colors.white}
+          value={searchText}
+          onChangeText={(newSearchText) => {
+            setSearchText(newSearchText);
+          }}
+          onSubmitEditing={(e) => {
+            setLocationSelected(false)
+            setLocations([]);
+            setParkingLots([]);
+            searchLocationMarkers(searchText).then((locations) => {
+              setLocations(locations);
+            });
+          }}
+        />
+      </ImageBackground>
+
       {locationSelected && <></>}
     </View>
   );
@@ -127,23 +140,28 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  searchLocationBar: {
-    // position
+
+  searchBarContainer: {
     position: "absolute",
     top: 50,
-    left: "10%",
+    left: "15%",
 
+    width: "70%",
+    height: 70,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  searchBarBackgroundImg: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  searchBarTextInput: {
     // colors
-    backgroundColor: colors.red,
-    color: colors.yellow,
-
+    color: colors.white,
     // size
     width: "80%",
-    height: 60,
-
-    // borders and spaces
-    borderRadius: 20,
-    padding: 20,
+    height: "80%",
 
     // text
     textAlign: "center",
@@ -154,55 +172,389 @@ const styles = StyleSheet.create({
 
 const customMapStyle = [
   {
-    elementType: "labels.icon",
+    featureType: "all",
+    elementType: "geometry",
     stylers: [
       {
-        visibility: "simplified",
+        color: "#ebe3cd",
       },
     ],
   },
   {
-    featureType: "landscape.man_made",
-    elementType: "geometry.fill",
+    featureType: "all",
+    elementType: "labels",
     stylers: [
       {
-        color: "#f1d788",
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "all",
+    elementType: "labels.text",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "all",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#523735",
+      },
+    ],
+  },
+  {
+    featureType: "all",
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#f5f1e6",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "geometry",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        color: "#c9b2a6",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.country",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.province",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.neighborhood",
+    elementType: "all",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.neighborhood",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        color: "#dcd2be",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#ae9e90",
+      },
+    ],
+  },
+  {
+    featureType: "landscape",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
       },
     ],
   },
   {
     featureType: "landscape.natural",
-    elementType: "geometry.fill",
+    elementType: "geometry",
     stylers: [
       {
-        color: "#ceb773",
+        color: "#dfd2ae",
       },
     ],
   },
   {
     featureType: "poi",
+    elementType: "all",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#dfd2ae",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#93817c",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
     elementType: "geometry.fill",
     stylers: [
       {
-        color: "#f18888",
+        color: "#a5b076",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#447530",
       },
     ],
   },
   {
     featureType: "road",
-    elementType: "geometry.fill",
+    elementType: "geometry",
     stylers: [
       {
-        color: "#c8c832",
+        color: "#f5f1e6",
+      },
+    ],
+  },
+  {
+    featureType: "road",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.icon",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#f8c967",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        color: "#e9bc62",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway.controlled_access",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#e98d58",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway.controlled_access",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        color: "#db8555",
+      },
+    ],
+  },
+  {
+    featureType: "road.arterial",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#fdfcf8",
+      },
+    ],
+  },
+  {
+    featureType: "road.local",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#806b63",
       },
     ],
   },
   {
     featureType: "transit",
+    elementType: "all",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "transit",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "transit.line",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#dfd2ae",
+      },
+    ],
+  },
+  {
+    featureType: "transit.line",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#8f7d77",
+      },
+    ],
+  },
+  {
+    featureType: "transit.line",
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#ebe3cd",
+      },
+    ],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#dfd2ae",
+      },
+    ],
+  },
+  {
+    featureType: "water",
     elementType: "geometry.fill",
     stylers: [
       {
-        color: "#f18888",
+        color: "#b9d3c2",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#92998d",
       },
     ],
   },
