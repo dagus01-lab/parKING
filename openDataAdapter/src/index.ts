@@ -26,13 +26,14 @@ function loadAndUpdateData() {
             body: JSON.stringify({
               id: i,
               name: p.parcheggio,
+              updateDateTime: Date.parse(p.data),
+              totalParkings: p.posti_totali,
+              availableParkings: p.posti_liberi,
+              occupiedParkings: p.posti_occupati,
               coordinate: {
                 latitude: p.coordinate.lat,
                 longitude: p.coordinate.lon,
               },
-              totalParkings: p.posti_totali,
-              availableParkings: p.posti_liberi,
-              date: Date.parse(p.data),
             }),
           }).then(() => console.log(`updated data forwarded to parKING`));
         });

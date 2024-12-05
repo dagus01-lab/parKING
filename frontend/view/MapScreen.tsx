@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, View, ImageBackground, Modal, Dimensions } from "react-native";
+import {
+  Text,
+  StyleSheet,
+  View,
+  ImageBackground,
+  Modal,
+  Dimensions,
+} from "react-native";
 import MapView, {
   Marker,
   Circle,
@@ -22,6 +29,7 @@ import {
 import { MapScreenRouteProps } from "./navigation.types";
 import { searchLocationMarkers } from "../controller/controller.openRouteService.func";
 import { searchParkingLots } from "../controller/controller.parKING.func";
+import { PieChart } from "react-native-gifted-charts";
 
 export default function MapScreen(props: { route: MapScreenRouteProps }) {
   const [searchText, setSearchText] = useState<string>(
@@ -36,12 +44,44 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
   const [selectedParkingLot, setSelectedParkingLot] = useState<ParkingLot>();
   const [isLocationSelected, setIsLocationSelected] = useState<boolean>(false);
   const [isParkingSelected, setIsParkingSelected] = useState<boolean>(true);
+  const [data, setData] = useState<{}>();
 
   useEffect(() => {
     searchLocationMarkers(searchText).then((locations) => {
       setLocations(locations);
     });
   }, []);
+
+  const unselectParkingLot = () => {
+    setIsParkingSelected(false);
+    setSelectedParkingLot(undefined);
+  };
+
+  const unselectLocation = () => {
+    unselectParkingLot();
+    setIsLocationSelected(false);
+    setParkingLots([]);
+  };
+
+  const unselectAll = () => {
+    unselectLocation();
+    unselectParkingLot();
+  };
+
+  const selectParkingLot = (p: ParkingLot) => {
+    setSelectedParkingLot(p);
+    setIsParkingSelected(true);
+  };
+
+  const selectLocation = (l: PointOfInterest) => {
+    unselectParkingLot();
+    const newBoundary = { ...boundary, center: l.coordinate };
+    setBoundary(newBoundary);
+    setIsLocationSelected(true);
+    searchParkingLots(newBoundary, 10).then((parkingsLots) => {
+      setParkingLots(parkingsLots);
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -61,10 +101,7 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
           longitudeDelta: 0.05,
         }}
         onPress={() => {
-          setIsLocationSelected(false);
-          setIsParkingSelected(false);
-          setSelectedParkingLot(undefined);
-          setParkingLots([]);
+          unselectAll();
         }}
       >
         {locations.map((l, index) => (
@@ -74,12 +111,7 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
             pinColor="red"
             key={"location-marker" + index}
             onSelect={(e) => {
-              const newBoundary = { ...boundary, center: l.coordinate };
-              setIsLocationSelected(true);
-              setBoundary(newBoundary);
-              searchParkingLots(newBoundary, 10).then((parkingsLots) => {
-                setParkingLots(parkingsLots);
-              });
+              selectLocation(l);
             }}
           />
         ))}
@@ -98,12 +130,11 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
               <Marker
                 coordinate={pl.coordinate}
                 title={pl.name}
-                description={`posti :${pl.availableParkings}`}
+                description={`posti:${pl.totalParkings}`}
                 pinColor="blue"
                 key={"parking-lot-marker" + index}
                 onSelect={() => {
-                  setSelectedParkingLot(pl);
-                  setIsParkingSelected(true);
+                  selectParkingLot(pl);
                 }}
               />
             ))}
@@ -115,36 +146,54 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
         placeholder="where do you wanna go?"
         placeholderTextColor={colors.darkBlue3}
         value={searchText}
+        onPressOut={() => {
+          unselectAll();
+        }}
         onChangeText={(newSearchText) => {
           setSearchText(newSearchText);
         }}
         onSubmitEditing={(e) => {
-          setIsLocationSelected(false);
-          setLocations([]);
-          setParkingLots([]);
+          unselectAll();
           searchLocationMarkers(searchText).then((locations) => {
             setLocations(locations);
           });
         }}
       />
-      {isParkingSelected && (
-        <View style={styles.parkingLotDetailContainer}>
-          <View style={styles.detail}>
-            <Text style={styles.label}>Parcheggio: </Text>
-            <Text style={styles.value}>{selectedParkingLot?.name}</Text>
+      {isLocationSelected && isParkingSelected && (
+        <View style={styles.parkingLotInfo}>
+          <View style={styles.detailContainer}>
+            <View style={styles.detail}>
+              <Text style={styles.label}>Parcheggio: </Text>
+              <Text style={styles.value}>{selectedParkingLot?.name}</Text>
+            </View>
+            <View style={styles.detail}>
+              <Text style={styles.label}>Posti Liberi: </Text>
+              <Text style={styles.value}>
+                {selectedParkingLot?.availableParkings}
+              </Text>
+            </View>
+            <View style={styles.detail}>
+              <Text style={styles.label}>Posti Occupati: </Text>
+              <Text style={styles.value}>
+                {selectedParkingLot?.occupiedParkings}
+              </Text>
+            </View>
           </View>
-          <View style={styles.detail}>
-            <Text style={styles.label}>Posti Liberi: </Text>
-            <Text style={styles.value}>
-              {selectedParkingLot?.availableParkings}
-            </Text>
-          </View>
-          <View style={styles.detail}>
-            <Text style={styles.label}>Posti Totali: </Text>
-            <Text style={styles.value}>
-              {selectedParkingLot?.totalParkings}
-            </Text>
-          </View>
+          <PieChart
+            data={[
+              {
+                textSize: 15,
+                value: selectedParkingLot?.availableParkings ?? 0,
+                color: colors.lightOrange1,
+              },
+              {
+                textColor: colors.lightGray2,
+                value: selectedParkingLot?.occupiedParkings ?? 0,
+                color: colors.darkBlue3,
+              },
+            ]}
+            radius={60}
+          />
         </View>
       )}
     </View>
@@ -187,15 +236,14 @@ const styles = StyleSheet.create({
     fontWeight: 900,
   },
 
-  parkingLotDetailContainer: {
+  parkingLotInfo: {
     position: "absolute",
     bottom: 30,
-    left: (Dimensions.get("window").width-200)/2,
+    left: (Dimensions.get("window").width - 300) / 2,
 
-    width: 200,
-    height: "auto",
-    aspectRatio: 1,
-    marginBottom: 50,
+    width: 300,
+    height: 200,
+    aspectRatio: 4 / 3,
     borderRadius: 20,
     borderColor: colors.lightOrange1,
     borderWidth: 4,
@@ -203,13 +251,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightYellow3,
 
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingLeft: 20,
+    flexDirection: "row",
+  },
+
+  detailContainer: {
+    width: "50%",
+    height: 150,
+    justifyContent: "space-between",
   },
 
   detail: {
     flexDirection: "column",
-    margin: 5,
   },
 
   label: {

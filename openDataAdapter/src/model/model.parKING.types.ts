@@ -14,6 +14,7 @@ export type ParkingLot = {
   updateDateTime: number;
   totalParkings: number;
   availableParkings: number;
+  occupiedParkings:number;
   coordinate: Coordinate;
 };
 

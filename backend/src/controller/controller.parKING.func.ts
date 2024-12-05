@@ -1,12 +1,16 @@
 import { Request, Response } from "express";
-import { CircularBoundary, Coordinate, ParkingLot } from "../model/model.parKING.types";
+import {
+  CircularBoundary,
+  Coordinate,
+  ParkingLot,
+} from "../model/model.parKING.types";
 import {
   GetParkingLotsRequest,
   PutParkingLotsRequest,
 } from "../api/api.parkingLots.types";
 import { from } from "ix/iterable";
 import { filter, take } from "ix/iterable/operators";
-import { computeDistanceBetween } from 'spherical-geometry-js';
+import { computeDistanceBetween } from "spherical-geometry-js";
 import { LatLng } from "spherical-geometry-js";
 import { isPointWithinRadius } from "geolib";
 
@@ -14,14 +18,39 @@ const DEFAULT_MAX_RESULTS = 10;
 
 const parkingLots = new Map<number, ParkingLot>([
   [
+    0,
+    {
+      id: 0,
+      name: "Autostazione",
+      coordinate: { latitude: 44.504422, longitude: 11.346514 },
+      totalParkings: 265,
+      availableParkings: 152,
+      occupiedParkings: 113,
+      updateDateTime: 1733413140000,
+    },
+  ],
+  [
     1,
     {
       id: 1,
       name: "Riva Reno",
-      coordinate: { latitude: 44.504422, longitude: 11.346514 },
+      coordinate: { latitude: 44.501153, longitude: 11.336062 },
       totalParkings: 470,
-      availableParkings: 470,
-      updateDateTime: 1732451330349
+      availableParkings: 253,
+      occupiedParkings: 217,
+      updateDateTime: 1733413140000,
+    },
+  ],
+  [
+    2,
+    {
+      id: 2,
+      name: "VIII Agosto",
+      coordinate: { latitude: 44.500297, longitude: 11.345368 },
+      totalParkings: 625,
+      availableParkings: 129,
+      occupiedParkings: 496,
+      updateDateTime: 1733413140000,
     },
   ],
 ]);
@@ -44,10 +73,10 @@ function calcCrowMeters(p1: Coordinate, p2: Coordinate) {
 
 function isInBoundary(point: Coordinate, boundary: CircularBoundary) {
   var km = boundary.radius / 1000;
-  var kx = Math.cos(Math.PI * boundary.center.latitude / 180) * 111;
+  var kx = Math.cos((Math.PI * boundary.center.latitude) / 180) * 111;
   var dx = Math.abs(boundary.center.longitude - point.longitude) * kx;
   var dy = Math.abs(boundary.center.latitude - point.latitude) * 111;
-  console.log("distance: " + Math.sqrt(dx * dx + dy * dy).toString())
+  console.log("distance: " + Math.sqrt(dx * dx + dy * dy).toString());
   return Math.sqrt(dx * dx + dy * dy) <= km;
 }
 
@@ -73,7 +102,11 @@ export function getParkingLots(req: GetParkingLotsRequest, res: Response) {
   from(parkingLots.values())
     .pipe(
       filter((pl) => {
-        return isPointWithinRadius(pl.coordinate,boundary.center,boundary.radius)
+        return isPointWithinRadius(
+          pl.coordinate,
+          boundary.center,
+          boundary.radius
+        );
       }),
       take(min(maxResults, DEFAULT_MAX_RESULTS))
     )
