@@ -16,28 +16,21 @@ export default function HomeScreen() {
   return (
     <ImageBackground
       source={require("../assets/beachBackground.jpg")}
-      imageStyle={{ resizeMode: "cover"}}
       style={styles.container}
     >
-      <Image source={require("../assets/logo.png")} style={styles.logoImg} />
-      <ImageBackground
-        source={require("../assets/searchBarBackground.png")}
-        style={styles.searchBarContainer}
-        imageStyle={styles.searchBarBackgroundImg}
-      >
-        <TextInput
-          style={styles.searchBarTextInput}
-          placeholder="where do you wanna go?"
-          placeholderTextColor={colors.white}
-          value={text}
-          onChangeText={(newText) => {
-            setText(newText);
-          }}
-          onSubmitEditing={(e) => {
-            mooveToMapScreen(text);
-          }}
-        />
-      </ImageBackground>
+      <Image source={require("../assets/logo.png")} style={styles.logo} />
+      <TextInput
+        style={styles.searchBar}
+        placeholder="where do you wanna go?"
+        placeholderTextColor={colors.darkBlue3}
+        value={text}
+        onChangeText={(newText) => {
+          setText(newText);
+        }}
+        onSubmitEditing={(e) => {
+          mooveToMapScreen(text);
+        }}
+      />
     </ImageBackground>
   );
 }
@@ -52,35 +45,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  backgroundImg:{
-    resizeMode:"cover"
-  },
 
-  logoImg: {
+  logo: {
     // size
     width: "70%",
     height: "auto",
     aspectRatio: 1,
-    resizeMode: "contain",
   },
-
-  searchBarContainer: {
-    width: "70%",
-    height: 70,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  searchBarBackgroundImg: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
-  },
-  searchBarTextInput: {
+  searchBar: {
     // colors
-    color: colors.white,
+    backgroundColor: colors.lightYellow3,
+    color: colors.darkBlue3,
+
+    borderRadius:20,
+    borderColor:colors.lightOrange1,
+    borderWidth:4,
     // size
-    width: "80%",
-    height: "80%",
+    width: "70%",
+    height: 60,
 
     // text
     textAlign: "center",

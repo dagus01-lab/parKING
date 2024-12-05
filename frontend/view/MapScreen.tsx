@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, View, ImageBackground } from "react-native";
+import { Text, StyleSheet, View, ImageBackground, Modal, Dimensions } from "react-native";
 import MapView, {
   Marker,
   Circle,
   PROVIDER_GOOGLE,
   Callout,
 } from "react-native-maps";
-import { Pressable, TextInput } from "react-native-gesture-handler";
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  TextInput,
+} from "react-native-gesture-handler";
 import searchZone from "../data/searchZone.const";
 import colors from "../data/colors.const";
 import {
@@ -28,7 +33,9 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
     center: searchZone.center,
     radius: 300,
   });
-  const [locationSelected, setLocationSelected] = useState<boolean>(false);
+  const [selectedParkingLot, setSelectedParkingLot] = useState<ParkingLot>();
+  const [isLocationSelected, setIsLocationSelected] = useState<boolean>(false);
+  const [isParkingSelected, setIsParkingSelected] = useState<boolean>(true);
 
   useEffect(() => {
     searchLocationMarkers(searchText).then((locations) => {
@@ -39,7 +46,7 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
   return (
     <View style={styles.container}>
       <MapView
-        style={styles.mapView}
+        style={styles.map}
         customMapStyle={customMapStyle}
         initialRegion={{
           latitude: searchZone.center.latitude,
@@ -54,7 +61,9 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
           longitudeDelta: 0.05,
         }}
         onPress={() => {
-          setLocationSelected(false);
+          setIsLocationSelected(false);
+          setIsParkingSelected(false);
+          setSelectedParkingLot(undefined);
           setParkingLots([]);
         }}
       >
@@ -66,7 +75,7 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
             key={"location-marker" + index}
             onSelect={(e) => {
               const newBoundary = { ...boundary, center: l.coordinate };
-              setLocationSelected(true);
+              setIsLocationSelected(true);
               setBoundary(newBoundary);
               searchParkingLots(newBoundary, 10).then((parkingsLots) => {
                 setParkingLots(parkingsLots);
@@ -74,7 +83,7 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
             }}
           />
         ))}
-        {locationSelected && (
+        {isLocationSelected && (
           <>
             <Circle
               center={{
@@ -92,36 +101,52 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
                 description={`posti :${pl.availableParkings}`}
                 pinColor="blue"
                 key={"parking-lot-marker" + index}
+                onSelect={() => {
+                  setSelectedParkingLot(pl);
+                  setIsParkingSelected(true);
+                }}
               />
             ))}
           </>
         )}
       </MapView>
-      <ImageBackground
-        source={require("../assets/searchBarBackground.png")}
-        style={styles.searchBarContainer}
-        imageStyle={styles.searchBarBackgroundImg}
-      >
-        <TextInput
-          style={styles.searchBarTextInput}
-          placeholder="where do you wanna go?"
-          placeholderTextColor={colors.white}
-          value={searchText}
-          onChangeText={(newSearchText) => {
-            setSearchText(newSearchText);
-          }}
-          onSubmitEditing={(e) => {
-            setLocationSelected(false)
-            setLocations([]);
-            setParkingLots([]);
-            searchLocationMarkers(searchText).then((locations) => {
-              setLocations(locations);
-            });
-          }}
-        />
-      </ImageBackground>
-
-      {locationSelected && <></>}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="where do you wanna go?"
+        placeholderTextColor={colors.darkBlue3}
+        value={searchText}
+        onChangeText={(newSearchText) => {
+          setSearchText(newSearchText);
+        }}
+        onSubmitEditing={(e) => {
+          setIsLocationSelected(false);
+          setLocations([]);
+          setParkingLots([]);
+          searchLocationMarkers(searchText).then((locations) => {
+            setLocations(locations);
+          });
+        }}
+      />
+      {isParkingSelected && (
+        <View style={styles.parkingLotDetailContainer}>
+          <View style={styles.detail}>
+            <Text style={styles.label}>Parcheggio: </Text>
+            <Text style={styles.value}>{selectedParkingLot?.name}</Text>
+          </View>
+          <View style={styles.detail}>
+            <Text style={styles.label}>Posti Liberi: </Text>
+            <Text style={styles.value}>
+              {selectedParkingLot?.availableParkings}
+            </Text>
+          </View>
+          <View style={styles.detail}>
+            <Text style={styles.label}>Posti Totali: </Text>
+            <Text style={styles.value}>
+              {selectedParkingLot?.totalParkings}
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -132,41 +157,70 @@ const styles = StyleSheet.create({
     position: "relative",
 
     // size
-    width: "100%",
-    height: "100%",
+    flex: 1,
   },
-  mapView: {
+  map: {
     // size
     width: "100%",
     height: "100%",
   },
 
-  searchBarContainer: {
+  searchBar: {
     position: "absolute",
-    top: 50,
+    top: 60,
     left: "15%",
 
-    width: "70%",
-    height: 70,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  searchBarBackgroundImg: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
-  },
-  searchBarTextInput: {
     // colors
-    color: colors.white,
+    backgroundColor: colors.lightYellow3,
+    color: colors.darkBlue3,
+
+    borderRadius: 20,
+    borderColor: colors.lightOrange1,
+    borderWidth: 4,
     // size
-    width: "80%",
-    height: "80%",
+    width: "70%",
+    height: 60,
 
     // text
     textAlign: "center",
     fontSize: 20,
     fontWeight: 900,
+  },
+
+  parkingLotDetailContainer: {
+    position: "absolute",
+    bottom: 30,
+    left: (Dimensions.get("window").width-200)/2,
+
+    width: 200,
+    height: "auto",
+    aspectRatio: 1,
+    marginBottom: 50,
+    borderRadius: 20,
+    borderColor: colors.lightOrange1,
+    borderWidth: 4,
+
+    backgroundColor: colors.lightYellow3,
+
+    alignItems: "center",
+    justifyContent: "center",
+    paddingLeft: 20,
+  },
+
+  detail: {
+    flexDirection: "column",
+    margin: 5,
+  },
+
+  label: {
+    color: colors.darkBlue3,
+    fontWeight: "900",
+    fontSize: 15,
+  },
+  value: {
+    color: "black",
+    fontWeight: "600",
+    fontSize: 20,
   },
 });
 
