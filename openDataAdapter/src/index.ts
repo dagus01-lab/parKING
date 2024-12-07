@@ -26,7 +26,7 @@ function loadAndUpdateData() {
             body: JSON.stringify({
               id: i,
               name: p.parcheggio,
-              updateDateTime: Date.parse(p.data),
+              updateDateTime: Date.parse(p.data)-3600000,
               totalParkings: p.posti_totali,
               availableParkings: p.posti_liberi,
               occupiedParkings: p.posti_occupati,

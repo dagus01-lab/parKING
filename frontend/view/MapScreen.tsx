@@ -31,6 +31,14 @@ import { searchLocationMarkers } from "../controller/controller.openRouteService
 import { searchParkingLots } from "../controller/controller.parKING.func";
 import { PieChart } from "react-native-gifted-charts";
 
+function formattedDateTime(dateTime: number) {
+  return new Date(dateTime)
+    .toISOString()
+    .slice(0, 16)
+    .replace(/-/g, "/")
+    .replace(/T/g, " ");
+}
+
 export default function MapScreen(props: { route: MapScreenRouteProps }) {
   const [searchText, setSearchText] = useState<string>(
     props.route.params.searchText
@@ -168,28 +176,52 @@ export default function MapScreen(props: { route: MapScreenRouteProps }) {
             </View>
             <View style={styles.detail}>
               <Text style={styles.label}>Posti Liberi: </Text>
-              <Text style={styles.value}>
-                {selectedParkingLot?.availableParkings}
-              </Text>
+              <View style={styles.parkingsNumberContainer}>
+                <View
+                  style={{
+                    ...styles.parkingNumberLegend,
+                    backgroundColor: colors.lightOrange1,
+                  }}
+                />
+                <Text style={styles.value}>
+                  {selectedParkingLot?.availableParkings}
+                </Text>
+              </View>
             </View>
             <View style={styles.detail}>
               <Text style={styles.label}>Posti Occupati: </Text>
+              <View style={styles.parkingsNumberContainer}>
+                <View
+                  style={{
+                    ...styles.parkingNumberLegend,
+                    backgroundColor: colors.darkBlue3,
+                  }}
+                />
+                <Text style={styles.value}>
+                  {selectedParkingLot?.occupiedParkings}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.detail}>
+              <Text style={styles.label}>Aggiornato al: </Text>
               <Text style={styles.value}>
-                {selectedParkingLot?.occupiedParkings}
+                {formattedDateTime(selectedParkingLot?.updateDateTime ?? 0)}
               </Text>
             </View>
           </View>
           <PieChart
+            donut
+            backgroundColor={colors.lightYellow3}
             data={[
               {
-                textSize: 15,
-                value: selectedParkingLot?.availableParkings ?? 0,
-                color: colors.lightOrange1,
+                textColor: colors.lightGray2,
+                value: selectedParkingLot?.occupiedParkings ?? -1,
+                color: colors.darkBlue3,
               },
               {
-                textColor: colors.lightGray2,
-                value: selectedParkingLot?.occupiedParkings ?? 0,
-                color: colors.darkBlue3,
+                textSize: 15,
+                value: selectedParkingLot?.availableParkings ?? -1,
+                color: colors.lightOrange1,
               },
             ]}
             radius={60}
@@ -242,7 +274,7 @@ const styles = StyleSheet.create({
     left: (Dimensions.get("window").width - 300) / 2,
 
     width: 300,
-    height: 200,
+    height: 220,
     aspectRatio: 4 / 3,
     borderRadius: 20,
     borderColor: colors.lightOrange1,
@@ -258,7 +290,7 @@ const styles = StyleSheet.create({
 
   detailContainer: {
     width: "50%",
-    height: 150,
+    height: "80%",
     justifyContent: "space-between",
   },
 
@@ -269,12 +301,24 @@ const styles = StyleSheet.create({
   label: {
     color: colors.darkBlue3,
     fontWeight: "900",
-    fontSize: 15,
+    fontSize: 12,
   },
   value: {
     color: "black",
     fontWeight: "600",
-    fontSize: 20,
+    fontSize: 16,
+  },
+  parkingsNumberContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  parkingNumberLegend: {
+    width: 16,
+    height: 16,
+    backgroundColor: colors.lightOrange1,
+    borderRadius: 5,
+    marginRight: 5,
   },
 });
 
