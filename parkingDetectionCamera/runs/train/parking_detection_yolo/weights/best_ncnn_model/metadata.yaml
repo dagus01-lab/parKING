@@ -1,0 +1,15 @@
+description: Ultralytics best model trained on /home/dagus/Documents/documenti uni/GIP/progetto/raspberry/dataset/data.yaml
+author: Ultralytics
+date: '2024-12-03T10:28:06.016133'
+version: 8.3.39
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 320
+- 320
+names:
+  0: space-empty
+  1: space-occupied
