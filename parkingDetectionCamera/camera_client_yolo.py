@@ -24,18 +24,17 @@ def write_labels_images(results: list, save_dir: str):
     
     with open(annotation_path, "w") as f:
         for result in results:
-            # Iterate over detected objects
             for obj in result.boxes:
-                class_id = int(obj.cls)  # Class ID
-                x_center, y_center, width, height = obj.xywhn[0].tolist()  # Normalized bbox
+                class_id = int(obj.cls)  
+                x_center, y_center, width, height = obj.xywhn[0].tolist() 
                 f.write(f"{class_id} {x_center} {y_center} {width} {height}\n")
 
             # Check if segmentation is enabled
             if hasattr(result, 'masks') and result.masks is not None:
                 for obj, mask in zip(result.boxes, result.masks):
-                    class_id = int(obj.cls)  # Class ID
+                    class_id = int(obj.cls)  
                     # Get polygon vertices from mask
-                    polygons = mask.xy  # List of polygons for the mask
+                    polygons = mask.xy  
                     for poly in polygons:
                         polygon_str = " ".join(map(str, poly.flatten().tolist()))
                         f.write(f"{class_id} {polygon_str}\n")
@@ -45,23 +44,19 @@ def write_labels_images(results: list, save_dir: str):
 def update_results_to_server(server_url:str, estimations: dict):
     parkLot={
         "id": 10,
-        "name": "test",
-        "updateDateTime": time.time(),
-        "totalParkings": 2,
-        "availableParkings": 0,
-        "occupiedParkings":0,
+        "name": "smart_camera",
+        "updateDateTime": time.time()*1000,
+        "totalParkings": estimations["available"]+estimations["occupied"],
+        "availableParkings": estimations["available"],
+        "occupiedParkings":estimations["occupied"],
         "coordinate": {
             "latitude":44.48761404106161,
             "longitude": 11.32700949374767
         }
     }
-    parkLot["occupiedParkings"]=estimations["occupied"]
-    parkLot["availableParkings"]=estimations["available"]
-    parkLot["totalParkings"]=estimations["available"]+estimations["occupied"]
-    parkLot["updateDateTime"]=time.time()
     requests.put(server_url,json=parkLot)
 
-parkompass_server_url="http://192.168.1.2:3000/api/parkingLots"
+parkompass_server_url="http://192.168.1.85:3000/api/parkingLots"
 camera_server_ip = '192.168.1.102'
 camera_server_port = 12345
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -70,8 +65,12 @@ save_dir = 'unsure_images'
 os.makedirs(save_dir, exist_ok=True)
 prev_frame = None
 threshold = 0.3
+prev_estimations = {
+                "occupied": -1,
+                "available": -1 
+            }
 if __name__ == '__main__':
-    model = YOLO('parking_detection.onnx')
+    model = YOLO('parking_detection_new.onnx')#'parking_detection_original.onnx')
 
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
@@ -83,7 +82,7 @@ if __name__ == '__main__':
 
         if not is_frame_similar(frame, prev_frame):
             # If the current frame is different from the previous one, perform inference
-            results = model(frame, imgsz=(320,320), iou=0.8,confidence=0.5)
+            results = model(frame, imgsz=(320,320), iou=0.8,conf=0.3)
             annotated_frame = results[0].plot()
             _, frame_encoded = cv2.imencode('.jpg', annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
             data = zlib.compress(pickle.dumps(frame_encoded))
@@ -92,14 +91,18 @@ if __name__ == '__main__':
                 conf = float(pred[4])  
                 if conf < threshold:
                     write_labels_images(results, save_dir)
-        prev_frame = frame.copy()
-        estimations = {
-            "occupied": sum(1 for result in results if int(result.cls) == 1),
-            "available": sum(1 for result in results if int(result.cls) == 0)  
-        }
-        if prev_estimations != estimations:
-            update_results_to_server(parkompass_server_url, estimations)
-        prev_estimations = estimations
+                    break
+            prev_frame = frame.copy()
+            estimations = {
+                "occupied": sum(1 for result in results[0].boxes if int(result.cls) == 1),
+                "available": sum(1 for result in results[0].boxes if int(result.cls) == 0)  
+            }
+            if prev_estimations != estimations:
+                try:
+                    update_results_to_server(parkompass_server_url, estimations)
+                except Exception as e:
+                    print(f"Error updating server: {str(e)}")
+            prev_estimations = estimations
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

@@ -29,6 +29,9 @@ class DatasetEditor:
 
         self.folder_button = tk.Button(self.gallery_frame, text="Select Folder", command=self.load_folder, font=("Arial", 14))
         self.folder_button.pack(side=tk.BOTTOM, pady=10)
+
+        self.banner_label = tk.Label(self.gallery_frame, text="", font=("Arial", 14), fg="blue")
+        self.banner_label.pack(side=tk.TOP, pady=5)
         
         self.image_paths = []
         self.current_index = 0
@@ -81,6 +84,9 @@ class DatasetEditor:
         # Load image in annotation editor
         annotation_path = os.path.splitext(image_path)[0] + ".txt"
         self.annotation_editor.load_image(image_path, annotation_path)
+        self.banner_label.config(
+            text=f"Image {self.current_index + 1} of {len(self.image_paths)}"
+        )
     def create_dataset(self):
         output_dir = simpledialog.askstring("Output Directory", "Enter the name of the destination directory:")
         if not output_dir or not output_dir.strip():
