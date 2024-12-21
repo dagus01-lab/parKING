@@ -10,7 +10,7 @@ const APIs = {
   ),
   "parkingLots/search": new API(
     "GET",
-    "http:192.168.1.2:3000",
+    "http://192.168.9.235:3000",
     "api/parkingLots"
   )
 };

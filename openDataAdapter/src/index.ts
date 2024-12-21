@@ -3,7 +3,7 @@ import { OpenDataApiResponse } from "./model/model.openData.types";
 
 const opendataApiUrl =
   "https://opendata.comune.bologna.it/api/explore/v2.1/catalog/datasets/disponibilita-parcheggi-vigente/records?limit=20";
-const parKingApiUrl = "http:localhost:3000/api/parkingLots";
+const parKingApiUrl = "http://localhost:3000/api/parkingLots";
 const parkingLotIds = 1;
 
 var updateFrequency = 5 * 60000;

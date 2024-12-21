@@ -1,12 +1,12 @@
 import RPi.GPIO as GPIO
 import time
 import requests
-import json
+
 
 prs=[7,15]
 light_max_time=500
 
-PARKOMPASS_URL="http://192.168.1.2:3000/api/parkingLots"
+PARKOMPASS_URL="http://192.168.9.235:3000/api/parkingLots"
 UPDATE_FREQUENCY=5
 parkLot={
   "id": 10,

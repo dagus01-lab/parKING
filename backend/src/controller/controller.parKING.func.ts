@@ -1,17 +1,11 @@
-import { Request, Response } from "express";
-import {
-  CircularBoundary,
-  Coordinate,
-  ParkingLot,
-} from "../model/model.parKING.types";
+import { Response } from "express";
+import { ParkingLot } from "../model/model.parKING.types";
 import {
   GetParkingLotsRequest,
   PutParkingLotsRequest,
 } from "../api/api.parkingLots.types";
 import { from } from "ix/iterable";
 import { filter, take } from "ix/iterable/operators";
-import { computeDistanceBetween } from "spherical-geometry-js";
-import { LatLng } from "spherical-geometry-js";
 import { isPointWithinRadius } from "geolib";
 
 const DEFAULT_MAX_RESULTS = 10;
@@ -24,9 +18,9 @@ const parkingLots = new Map<number, ParkingLot>([
       name: "Autostazione",
       coordinate: { latitude: 44.504422, longitude: 11.346514 },
       totalParkings: 265,
-      availableParkings: 152,
-      occupiedParkings: 113,
-      updateDateTime: 1733413140000,
+      availableParkings: 256,
+      occupiedParkings: 0,
+      updateDateTime: 0,
     },
   ],
   [
@@ -36,9 +30,9 @@ const parkingLots = new Map<number, ParkingLot>([
       name: "Riva Reno",
       coordinate: { latitude: 44.501153, longitude: 11.336062 },
       totalParkings: 470,
-      availableParkings: 253,
-      occupiedParkings: 217,
-      updateDateTime: 1733413140000,
+      availableParkings: 470,
+      occupiedParkings: 0,
+      updateDateTime: 0,
     },
   ],
   [
@@ -48,47 +42,60 @@ const parkingLots = new Map<number, ParkingLot>([
       name: "VIII Agosto",
       coordinate: { latitude: 44.500297, longitude: 11.345368 },
       totalParkings: 625,
-      availableParkings: 129,
-      occupiedParkings: 496,
-      updateDateTime: 1733413140000,
+      availableParkings: 625,
+      occupiedParkings: 0,
+      updateDateTime: 0,
+    },
+  ],
+  [
+    10,
+    {
+      id: 10,
+      name: "photoResistorSensor_test",
+      coordinate: { latitude: 44.500297, longitude: 11.345368 },
+      totalParkings: 2,
+      availableParkings: 2,
+      occupiedParkings: 0,
+      updateDateTime: 0,
+    },
+  ],
+  [
+    11,
+    {
+      id: 11,
+      name: "cameraSenor_test",
+      coordinate: { latitude: 44.500297, longitude: 11.345368 },
+      totalParkings: 6,
+      availableParkings: 6,
+      occupiedParkings: 0,
+      updateDateTime: 0,
     },
   ],
 ]);
 
-//This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in m)
-function calcCrowMeters(p1: Coordinate, p2: Coordinate) {
-  var R = 6371; // km
-  var dLat = toRad(p2.latitude - p1.latitude);
-  var dLon = toRad(p2.longitude - p1.longitude);
-  var lat1 = toRad(p1.latitude);
-  var lat2 = toRad(p2.latitude);
-
-  var a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  var d = R * c;
-  return d * 1000;
-}
-
-function isInBoundary(point: Coordinate, boundary: CircularBoundary) {
-  var km = boundary.radius / 1000;
-  var kx = Math.cos((Math.PI * boundary.center.latitude) / 180) * 111;
-  var dx = Math.abs(boundary.center.longitude - point.longitude) * kx;
-  var dy = Math.abs(boundary.center.latitude - point.latitude) * 111;
-  console.log("distance: " + Math.sqrt(dx * dx + dy * dy).toString());
-  return Math.sqrt(dx * dx + dy * dy) <= km;
-}
-
-// Converts numeric degrees to radians
-function toRad(value: number) {
-  return (value * Math.PI) / 180;
-}
-
+/**
+ * Returns the smaller of two numbers.
+ *
+ * @param n1 - The first number to compare.
+ * @param n2 - The second number to compare.
+ * @returns The smaller of the two numbers.
+ */
 function min(n1: number, n2: number) {
   return n1 < n2 ? n1 : n2;
 }
 
+/**
+ * Retrieves a list of parking lots within a specified boundary and returns them as a JSON response.
+ *
+ * @param req - The request object containing query parameters:
+ *   - `boundary.center.latitude` (string): The latitude of the center of the boundary.
+ *   - `boundary.center.longitude` (string): The longitude of the center of the boundary.
+ *   - `boundary.radius` (string): The radius of the boundary in meters.
+ *   - `maxResults` (string): The maximum number of parking lots to return.
+ * @param res - The response object used to send the JSON result.
+ *
+ * @returns A JSON response containing an array of parking lots within the specified boundary.
+ */
 export function getParkingLots(req: GetParkingLotsRequest, res: Response) {
   const boundary = {
     center: {
@@ -119,6 +126,19 @@ export function getParkingLots(req: GetParkingLotsRequest, res: Response) {
   res.json(result);
 }
 
+/**
+ * Handles the PUT request to update a parking lot.
+ * The function extracts the parking lot ID from the query parameters, retrieves the old value,
+ * updates the parking lot with the new data from the request body, logs the old and new values,
+ * and sends the updated data as a JSON response.
+ *
+ * @param req - The request object containing query parameters:
+ *   - `id` (integer): The numeric identifier of the parking lot to update
+ *   The request body contains the new parking lot data.
+ * @param res - The response object to send the updated parking lot data.
+ *
+ * @returns A JSON response containg the new stored data for the parking lot to update.
+ */
 export function putParkingLots(req: PutParkingLotsRequest, res: Response) {
   const id = Number.parseInt(req.query["id"]);
   const oldValue = parkingLots.get(id);
@@ -128,5 +148,5 @@ export function putParkingLots(req: PutParkingLotsRequest, res: Response) {
       oldValue
     )}\nnew value:${JSON.stringify(req.body)}`
   );
-  res.json(req.body);
+  res.json(parkingLots.get(id));
 }
