@@ -1,3 +1,11 @@
+/**
+ * @fileoverview This module provides controller functions for handling parking lot data.
+ * It includes functions to retrieve a list of parking lots within a specified boundary
+ * and to update parking lot information. The parking lot data is stored in a Map and
+ * includes details such as coordinates, total parkings, available parkings, and occupied parkings.
+ * The module uses the `geolib` library to determine if a point is within a specified radius.
+ */
+
 import { Response } from "express";
 import { ParkingLot } from "../model/model.parKING.types";
 import {
