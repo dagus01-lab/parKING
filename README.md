@@ -1,6 +1,6 @@
 # ParKompass
 
-<img src="_readmeImgs_/logo.png" width="400px" height="400px"/>
+<img src="_readmeImgs_/logo.png" width="400px"/>
 
 ## Intro
 
@@ -34,46 +34,73 @@ The frontend is a React Native application with the following functionalities:
 
 ### Backend
 
-The backend consist of node server exposing mainly two REST APIs:
+The backend consist of Node server exposing mainly two REST APIs:
 
-* **[GET] /api/parkingLots**: this API is used by the frontend to retrieve a list of parking lots within a specified boundary. The following query parameters must be provided:
-    * `boundary.center.latitude` (string): The latitude of the center of the boundary.
-    * `boundary.center.longitude` (string): The longitude of the center of the boundary.
-    * `boundary.radius` (string): The radius of the boundary in meters.
-    * `maxResults` (string): The maximum number of parking lots to return.
+- **[GET] /api/parkingLots**: this API is used by the frontend to retrieve a list of parking lots within a specified boundary. The following query parameters must be provided:
 
-* **[PUT] /api/parkingLots**: this API is used by sensors and adapters to update the info about a parking lot. The following query parameters must be provided:
-    * `id` (string): The id of the parking lot to update.
+  - `boundary.center.latitude` (string): The latitude of the center of the boundary.
+  - `boundary.center.longitude` (string): The longitude of the center of the boundary.
+  - `boundary.radius` (string): The radius of the boundary in meters.
+  - `maxResults` (string): The maximum number of parking lots to return.
 
-    The request body must contain the parkingLot updated info in the following JSON format:
-    ```js
-    {
-        id: number;
-        name: string;
-        updateDateTime: number;
-        totalParkings: number;
-        availableParkings: number;
-        occupiedParkings:number;
-        coordinate: Coordinate;
-    }
-    ```
-    where a Coordinate has the following format:
-    ```js
-    {
-        latitude: number;
-        longitude: number;
-    }
-    ```
+  It returns a JSON answer containg a list of ParkingLots, where each ParkingLot has the following format:
 
+  ```ts
+  type ParkingLot = {
+    id: number;
+    name: string;
+    updateDateTime: number;
+    totalParkings: number;
+    availableParkings: number;
+    occupiedParkings: number;
+    coordinate: Coordinate;
+  };
+
+  type Coordinate = {
+    latitude: number;
+    longitude: number;
+  };
+  ```
+
+- **[PUT] /api/parkingLots**: this API is used by sensors and adapters to update the info about a parking lot. The following query parameters must be provided:
+
+  - `id` (string): The id of the parking lot to update.
+
+  The request body must contain the ParkingLot updated info in the following JSON format:
+
+  ```ts
+  type ParkingLot = {
+    id: number;
+    name: string;
+    updateDateTime: number;
+    totalParkings: number;
+    availableParkings: number;
+    occupiedParkings: number;
+    coordinate: Coordinate;
+  };
+  type Coordinate = {
+    latitude: number;
+    longitude: number;
+  };
+  ```
 
 ### Sensors and Adapters
 
+To showcase the versatility of ParKompass, we have developed three distinct data sources for parking lot occupancy:
+
+- **Open Data Adapter**: A Node application that periodically retrieves occupancy data from three open databases maintained by the Municipality of Bologna.
+
+- **Light Sensor**: A miniature parking lot model with two spots, each equipped with a photoresistor. The data is managed by a Raspberry Pi, which sends the occupancy information to the ParKompass backend.<br/>
+<img src="_readmeImgs_/lightSensor.jpeg" width="400px"/>
+
+- **Camera Sensor**: Another miniature parking lot model with six spots, utilizing computer vision techniques to determine occupancy. The data is processed by a Raspberry Pi equipped with a camera.
 
 ## Credits
+
 ParKompass has been developed by:
 
-* [b3nny01](https://github.com/b3nny01)
-* [jjulespop](https://github.com/jjulespop)
-* [dagus01-lab](https://github.com/dagus01-lab)
-* [Emanuele8](https://github.com/Emanuele8)
-* [bryanber102](https://github.com/bryanber102)
+- [b3nny01](https://github.com/b3nny01)
+- [jjulespop](https://github.com/jjulespop)
+- [dagus01-lab](https://github.com/dagus01-lab)
+- [Emanuele8](https://github.com/Emanuele8)
+- [bryanber102](https://github.com/bryanber102)
