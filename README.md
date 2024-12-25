@@ -94,6 +94,7 @@ To showcase the versatility of ParKompass, we have developed three distinct data
 <img src="_readmeImgs_/lightSensor.jpeg" width="400px"/>
 
 - **Camera Sensor**: Another miniature parking lot model with six spots, utilizing computer vision techniques to determine occupancy. The data is processed by a Raspberry Pi equipped with a camera.
+<img src="_readmeImgs_/smart_camera.jpg" width="400px"/>
 
 ## Credits
 

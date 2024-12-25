@@ -17,8 +17,9 @@ while True:
         data, addr = server_socket.recvfrom(65536)
         frame_encoded = pickle.loads(zlib.decompress(data))
         frame = cv2.imdecode(frame_encoded, cv2.IMREAD_COLOR)
+        resized_frame = cv2.resize(frame, (640, 640), interpolation=cv2.INTER_LINEAR)
 
-        cv2.imshow("Stream", frame)
+        cv2.imshow("Stream", resized_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

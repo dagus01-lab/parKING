@@ -20,17 +20,16 @@ class DatasetEditor:
         self.gallery_frame = tk.Frame(root, width=1200, height=800)
         self.gallery_frame.pack(side=tk.BOTTOM, fill=tk.X)
         
-        
-        self.prev_button = tk.Button(self.gallery_frame, text="←", command=self.prev_image, font=("Arial", 20))
+        self.prev_button = tk.Button(self.gallery_frame, text="←", command=self.prev_image, font=("Arial", 15))
         self.prev_button.pack(side=tk.LEFT, padx=10, pady=10)
         self.init_annotation_editor(self.editor_frame)
-        self.next_button = tk.Button(self.gallery_frame, text="→", command=self.next_image, font=("Arial", 20))
+        self.next_button = tk.Button(self.gallery_frame, text="→", command=self.next_image, font=("Arial", 15))
         self.next_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
-        self.folder_button = tk.Button(self.gallery_frame, text="Select Folder", command=self.load_folder, font=("Arial", 14))
+        self.folder_button = tk.Button(self.gallery_frame, text="Select Folder", command=self.load_folder, font=("Arial", 10))
         self.folder_button.pack(side=tk.BOTTOM, pady=10)
 
-        self.banner_label = tk.Label(self.gallery_frame, text="", font=("Arial", 14), fg="blue")
+        self.banner_label = tk.Label(self.gallery_frame, text="", font=("Arial", 10), fg="blue")
         self.banner_label.pack(side=tk.TOP, pady=5)
         
         self.image_paths = []
@@ -68,10 +67,10 @@ class DatasetEditor:
 
     def show_image(self):
         if not hasattr(self, "delete_image_button"):
-            self.delete_image_button = tk.Button(self.gallery_frame, text="Delete image", command=self.delete_image, font=("Arial", 14))
+            self.delete_image_button = tk.Button(self.gallery_frame, text="Delete image", command=self.delete_image, font=("Arial", 10))
             self.delete_image_button.pack(side=tk.TOP, pady=10)
         if not hasattr(self, "create_dataset_button"):
-            self.create_dataset_button = tk.Button(self.gallery_frame, text="Create Dataset", command=self.create_dataset, font=("Arial", 14))
+            self.create_dataset_button = tk.Button(self.gallery_frame, text="Create Dataset", command=self.create_dataset, font=("Arial", 10))
             self.create_dataset_button.pack(side=tk.TOP, pady=10)
         if not self.image_paths:
             return
