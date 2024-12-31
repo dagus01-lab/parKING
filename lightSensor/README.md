@@ -22,11 +22,11 @@ Unfortunately, we only had Raspberry Pi boards (which do not have analog pins), 
 3. GPIO Pin for Timing: Use a GPIO pin to measure the time it takes for the capacitor to charge or discharge through the photoresistor and resistor. You can measure the time it takes to reach a certain voltage threshold (for example, 3.3V).
 
 #### Wiring Diagram
-<img src="../_readmeImgs_/photoresistor_circuit.png" width="400px"/>
+<img src="../_readmeImgs_/light_sensor_wiring.jpeg" width="400px"/>
 
 Here is an illustration of the demo setup:
 
-<img src="../_readmeImgs_/lightSensor.jpeg" width="400px"/>
+<img src="../_readmeImgs_/light_sensor.jpeg" width="400px"/>
 
 ## Software Requirements
 Install the RPi.GPIO library:
