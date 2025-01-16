@@ -2,7 +2,7 @@ task: detect
 mode: train
 model: parking_detection_model.pt
 data: /home/dagus/Documents/documenti uni/GIP/progetto/parKING/parkingDetectionCamera/new_dataset/dataset.yaml
-epochs: 80
+epochs: 90
 time: null
 patience: 10
 batch: 128
@@ -13,7 +13,7 @@ cache: false
 device: cuda
 workers: 8
 project: runs/partial_retrain
-name: finetuning2
+name: finetuning
 exist_ok: false
 pretrained: true
 optimizer: auto
@@ -103,4 +103,4 @@ erasing: 0.4
 crop_fraction: 1.0
 cfg: null
 tracker: botsort.yaml
-save_dir: runs/partial_retrain/finetuning2
+save_dir: runs/partial_retrain/finetuning

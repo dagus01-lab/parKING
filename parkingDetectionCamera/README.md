@@ -8,7 +8,7 @@ The dataset used for training was created by combining several publicly availabl
 ### Result
 The model was fine-tuned using YOLOv11. Below are the training results:
 ```
-YOLO11n summary (fused): 238 layers, 2,582,542 parameters, 0 gradients, 6.3 GFLOPs
+Model summary (fused): 238 layers, 2,582,542 parameters, 0 gradients, 6.3 GFLOPs
                  Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 19/19 [00:25<00:00,  1.35s/it]
                    all       4623     266365      0.998      0.996      0.995      0.959
            space-empty       3944     139864      0.998      0.996      0.995      0.964
@@ -21,6 +21,13 @@ After the initial training, the model was fine-tuned on a custom dataset of toy 
 We also provide a simple dataset annotator to generate YOLO-compatible datasets. To use it, run: ```python3 ajust_annotations.py```
 
 These are the training results:
+```
+Model summary (fused): 168 layers, 3,006,038 parameters, 0 gradients, 8.1 GFLOPs
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 1/1 [00:00<00:00,  8.42it/s]
+                   all         62        391      0.941      0.949      0.959      0.776
+           space-empty         59        167      0.905      0.928      0.927       0.76
+        space-occupied         59        224      0.977       0.97      0.991      0.792
+```
 
 ## Smart Camera
 

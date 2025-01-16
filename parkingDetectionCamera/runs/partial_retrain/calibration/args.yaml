@@ -13,7 +13,7 @@ cache: false
 device: cuda
 workers: 8
 project: runs/partial_retrain
-name: calibration2
+name: calibration
 exist_ok: false
 pretrained: true
 optimizer: auto
@@ -103,4 +103,4 @@ erasing: 0.4
 crop_fraction: 1.0
 cfg: null
 tracker: botsort.yaml
-save_dir: runs/partial_retrain/calibration2
+save_dir: runs/partial_retrain/calibration
